@@ -629,6 +629,18 @@ var GAS_URL = localStorage.getItem('policy_match_gas_url') || DEFAULT_GAS_URL;
 var currentUserData = {};
 var currentTarget = '';
 
+function normalizePurposes(val) {
+  if (Array.isArray(val)) return val.filter(Boolean);
+  if (typeof val === 'string' && val) {
+    return val.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+  }
+  return [];
+}
+
+function purposesToText(val) {
+  return normalizePurposes(val).join(',');
+}
+
 window.onload = function() {
   if (GAS_URL) document.getElementById('gas-url').value = GAS_URL;
   var savedPhone = localStorage.getItem('policy_match_phone');
@@ -672,12 +684,13 @@ function handleSubmit(e) {
   e.preventDefault();
   var purposes = [];
   document.querySelectorAll('input[name="purpose"]:checked').forEach(function(c) { purposes.push(c.value); });
+  purposes = normalizePurposes(purposes);
   if (purposes.length === 0) { showToast('⚠️ 자금 필요 목적을 최소 1개 선택해 주세요.'); return; }
 
   currentUserData = {
     company:   document.getElementById('company').value.trim(),
     ceo:       document.getElementById('ceo').value.trim(),
-    phone:     document.getElementById('phone').value.trim(),
+    phone:     String(document.getElementById('phone').value.trim()),
     region:    document.getElementById('region').value,
     industry:  document.getElementById('industry').value,
     bizType:   document.getElementById('biz-type').value,
@@ -727,6 +740,7 @@ function fetchFromGAS(userData) {
 }
 
 function matchPolicies(policies, user) {
+  user.purposes = normalizePurposes(user.purposes);
   var results = policies.map(function(p) {
     var score = 0, maxScore = 0, reasons = [];
 
@@ -777,7 +791,8 @@ function matchPolicies(policies, user) {
 function renderResults(results, isLive) {
   showPage('page-result');
   document.getElementById('result-title').textContent = currentUserData.company + ' 맞춤 정책자금 추천 결과';
-  document.getElementById('result-sub').textContent = currentUserData.ceo + ' 대표님 | ' + currentUserData.region + ' | ' + currentUserData.industry;
+  var purposesText = purposesToText(currentUserData.purposes);
+  document.getElementById('result-sub').textContent = currentUserData.ceo + ' 대표님 | ' + currentUserData.region + ' | ' + currentUserData.industry + (purposesText ? ' | 자금목적: ' + purposesText : '');
   document.getElementById('match-count').textContent = results.length;
 
   var badge = document.getElementById('api-status-badge');
@@ -859,7 +874,7 @@ function closeConsultModal() { document.getElementById('consult-modal').classLis
 
 function submitConsult() {
   var name  = document.getElementById('c-name').value.trim();
-  var phone = document.getElementById('c-phone').value.trim();
+  var phone = String(document.getElementById('c-phone').value.trim());
   if (!name || !phone) { showToast('⚠️ 신청자명과 연락처는 필수입니다.'); return; }
 
   var data = {
@@ -871,7 +886,7 @@ function submitConsult() {
     region: currentUserData.region || '', industry: currentUserData.industry || '',
     bizType: currentUserData.bizType || '', bizAge: currentUserData.bizAge || 0,
     revenue: currentUserData.revenue || 0, employees: currentUserData.employees || 0,
-    purposes: (currentUserData.purposes || []).join(','), trouble: currentUserData.trouble || ''
+    purposes: purposesToText(currentUserData.purposes), trouble: currentUserData.trouble || ''
   };
 
   closeConsultModal();
