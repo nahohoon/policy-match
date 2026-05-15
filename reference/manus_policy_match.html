@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>정책자금 매칭 플랫폼 - 소상공인·중소기업 맞춤형 지원사업 추천</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: white;
+            padding: 40px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 1.1em;
+            color: #7f8c8d;
+            font-weight: 300;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .form-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-section h2 {
+            font-size: 1.5em;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="tel"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="tel"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            margin-top: 10px;
+        }
+
+        .results-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .results-section h2 {
+            font-size: 1.5em;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #27ae60;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+        }
+
+        .policy-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8eef5 100%);
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .policy-card:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .policy-card.high {
+            border-left-color: #27ae60;
+        }
+
+        .policy-card.medium {
+            border-left-color: #f39c12;
+        }
+
+        .policy-card.low {
+            border-left-color: #e74c3c;
+        }
+
+        .policy-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .policy-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #2c3e50;
+            flex: 1;
+        }
+
+        .match-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            white-space: nowrap;
+            margin-left: 10px;
+        }
+
+        .match-badge.high {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+
+        .match-badge.medium {
+            background: #fef5e7;
+            color: #f39c12;
+        }
+
+        .match-badge.low {
+            background: #fadbd8;
+            color: #e74c3c;
+        }
+
+        .match-score {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #3498db;
+            margin-left: 10px;
+        }
+
+        .policy-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #7f8c8d;
+            font-size: 0.85em;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            color: #2c3e50;
+            line-height: 1.4;
+        }
+
+        .match-reasons {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .match-reasons-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .reason-tag {
+            display: inline-block;
+            background: #ecf0f1;
+            color: #2c3e50;
+            padding: 4px 10px;
+            border-radius: 4px;
+            margin-right: 8px;
+            margin-bottom: 6px;
+            font-size: 0.85em;
+        }
+
+        .policy-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .policy-actions a {
+            flex: 1;
+            display: inline-block;
+            text-align: center;
+            padding: 10px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .policy-actions a:hover {
+            background: #2980b9;
+        }
+
+        .consult-button {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            margin-top: 15px;
+        }
+
+        .consult-button:hover {
+            box-shadow: 0 6px 16px rgba(39, 174, 96, 0.4);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #ecf0f1;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fadbd8;
+            color: #c0392b;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .success-message {
+            background: #d5f4e6;
+            color: #27ae60;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #27ae60;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .policy-info {
+                grid-template-columns: 1fr;
+            }
+
+            .policy-header {
+                flex-direction: column;
+            }
+
+            .match-badge {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+
+        .receipt-info {
+            background: #d5f4e6;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .receipt-info strong {
+            color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>정책자금 매칭 플랫폼</h1>
+            <p>소상공인·중소기업을 위한 맞춤형 정부지원사업 추천 서비스</p>
+        </header>
+
+        <div class="content">
+            <!-- Form Section -->
+            <div class="form-section">
+                <h2>📋 기본정보 입력</h2>
+                <form id="matchForm">
+                    <div class="form-group">
+                        <label for="companyName">업체명 *</label>
+                        <input type="text" id="companyName" name="companyName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="representativeName">대표자명 *</label>
+                        <input type="text" id="representativeName" name="representativeName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">연락처 *</label>
+                        <input type="tel" id="phone" name="phone" placeholder="010-1234-5678" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="region">지역 *</label>
+                            <select id="region" name="region" required>
+                                <option value="">선택하세요</option>
+                                <option value="서울">서울</option>
+                                <option value="경기">경기</option>
+                                <option value="인천">인천</option>
+                                <option value="부산">부산</option>
+                                <option value="대구">대구</option>
+                                <option value="대전">대전</option>
+                                <option value="광주">광주</option>
+                                <option value="울산">울산</option>
+                                <option value="세종">세종</option>
+                                <option value="강원">강원</option>
+                                <option value="충북">충북</option>
+                                <option value="충남">충남</option>
+                                <option value="전북">전북</option>
+                                <option value="전남">전남</option>
+                                <option value="경북">경북</option>
+                                <option value="경남">경남</option>
+                                <option value="제주">제주</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="industry">업종 *</label>
+                            <select id="industry" name="industry" required>
+                                <option value="">선택하세요</option>
+                                <option value="제조업">제조업</option>
+                                <option value="도소매업">도소매업</option>
+                                <option value="음식점">음식점</option>
+                                <option value="숙박업">숙박업</option>
+                                <option value="운수업">운수업</option>
+                                <option value="통신업">통신업</option>
+                                <option value="금융업">금융업</option>
+                                <option value="부동산업">부동산업</option>
+                                <option value="교육서비스">교육서비스</option>
+                                <option value="의료서비스">의료서비스</option>
+                                <option value="기타서비스">기타서비스</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="businessType">사업자 유형 *</label>
+                            <select id="businessType" name="businessType" required>
+                                <option value="">선택하세요</option>
+                                <option value="개인사업자">개인사업자</option>
+                                <option value="법인">법인</option>
+                                <option value="소상공인">소상공인</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="businessYears">창업연수 (년) *</label>
+                            <input type="number" id="businessYears" name="businessYears" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="revenue">연매출 (억원) *</label>
+                            <input type="number" id="revenue" name="revenue" min="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="employees">종업원 수 (명) *</label>
+                            <input type="number" id="employees" name="employees" min="1" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fundingPurpose">자금 필요 목적 *</label>
+                        <select id="fundingPurpose" name="fundingPurpose" required>
+                            <option value="">선택하세요</option>
+                            <option value="운영자금">운영자금</option>
+                            <option value="시설투자">시설투자</option>
+                            <option value="기계장비">기계장비</option>
+                            <option value="기술개발">기술개발</option>
+                            <option value="인력채용">인력채용</option>
+                            <option value="마케팅">마케팅</option>
+                            <option value="기타">기타</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="challenges">현재 애로사항</label>
+                        <textarea id="challenges" name="challenges" placeholder="현재 겪고 있는 어려움을 작성해주세요"></textarea>
+                    </div>
+
+                    <button type="submit">🔍 매칭 결과 조회</button>
+                </form>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section">
+                <h2>📊 매칭 결과</h2>
+                
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>매칭 중입니다. 잠시만 기다려주세요...</p>
+                </div>
+
+                <div id="resultsContainer" style="display: none;">
+                    <div id="errorMessage"></div>
+                    <div id="successMessage"></div>
+                    <div id="receiptInfo"></div>
+                    <div id="policiesList"></div>
+                </div>
+
+                <div id="noResults" class="no-results" style="display: none;">
+                    <p>아직 조회 결과가 없습니다.</p>
+                    <p>왼쪽 폼에서 기본정보를 입력하고 매칭을 시작해주세요.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('matchForm');
+        const loading = document.getElementById('loading');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const noResults = document.getElementById('noResults');
+        const policiesList = document.getElementById('policiesList');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const receiptInfo = document.getElementById('receiptInfo');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Collect form data
+            const userInfo = {
+                companyName: document.getElementById('companyName').value,
+                representativeName: document.getElementById('representativeName').value,
+                phone: document.getElementById('phone').value,
+                region: document.getElementById('region').value,
+                industry: document.getElementById('industry').value,
+                businessType: document.getElementById('businessType').value,
+                businessYears: document.getElementById('businessYears').value,
+                revenue: document.getElementById('revenue').value,
+                employees: document.getElementById('employees').value,
+                fundingPurpose: document.getElementById('fundingPurpose').value,
+                challenges: document.getElementById('challenges').value
+            };
+
+            // Show loading
+            loading.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            noResults.style.display = 'none';
+            errorMessage.innerHTML = '';
+            successMessage.innerHTML = '';
+            receiptInfo.innerHTML = '';
+
+            try {
+                // Call Google Apps Script
+                const result = await google.script.run
+                    .withSuccessHandler(displayResults)
+                    .withFailureHandler(displayError)
+                    .matchPolicies(userInfo);
+            } catch (error) {
+                displayError(error);
+            }
+        });
+
+        function displayResults(result) {
+            loading.style.display = 'none';
+
+            if (!result.success) {
+                errorMessage.innerHTML = `<div class="error-message">${result.message}</div>`;
+                resultsContainer.style.display = 'block';
+                noResults.style.display = 'none';
+                return;
+            }
+
+            if (result.results.length === 0) {
+                noResults.style.display = 'block';
+                resultsContainer.style.display = 'none';
+                return;
+            }
+
+            // Display results
+            resultsContainer.style.display = 'block';
+            noResults.style.display = 'none';
+
+            policiesList.innerHTML = result.results.map((policy, index) => `
+                <div class="policy-card ${policy.matchLevel === '높음' ? 'high' : policy.matchLevel === '보통' ? 'medium' : 'low'}">
+                    <div class="policy-header">
+                        <div style="flex: 1;">
+                            <div class="policy-title">${index + 1}. ${policy['사업명']}</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <span class="match-score">${policy.matchScore}%</span>
+                            <span class="match-badge ${policy.matchLevel === '높음' ? 'high' : policy.matchLevel === '보통' ? 'medium' : 'low'}">
+                                적합도 ${policy.matchLevel}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="match-reasons">
+                        <div class="match-reasons-title">✓ 추천 사유</div>
+                        ${policy.matchReasons.map(reason => `<span class="reason-tag">${reason}</span>`).join('')}
+                    </div>
+
+                    <div class="policy-info">
+                        <div class="info-item">
+                            <span class="info-label">주관기관</span>
+                            <span class="info-value">${policy['주관기관']}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">지원내용</span>
+                            <span class="info-value">${policy['지원내용']}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">신청기간</span>
+                            <span class="info-value">${policy['신청기간']}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">필요서류</span>
+                            <span class="info-value">${policy['필요서류']}</span>
+                        </div>
+                    </div>
+
+                    <div class="policy-actions">
+                        <a href="${policy['신청링크']}" target="_blank">신청하기</a>
+                    </div>
+                </div>
+            `).join('');
+
+            // Show consult button
+            const consultButton = document.createElement('button');
+            consultButton.type = 'button';
+            consultButton.className = 'consult-button';
+            consultButton.textContent = '📞 상담 신청하기';
+            consultButton.onclick = () => saveConsultation(result.results);
+            policiesList.appendChild(consultButton);
+        }
+
+        function displayError(error) {
+            loading.style.display = 'none';
+            resultsContainer.style.display = 'block';
+            noResults.style.display = 'none';
+            errorMessage.innerHTML = `<div class="error-message">오류: ${error}</div>`;
+        }
+
+        function saveConsultation(recommendedPolicies) {
+            const userInfo = {
+                companyName: document.getElementById('companyName').value,
+                representativeName: document.getElementById('representativeName').value,
+                phone: document.getElementById('phone').value,
+                region: document.getElementById('region').value,
+                industry: document.getElementById('industry').value,
+                businessType: document.getElementById('businessType').value,
+                businessYears: document.getElementById('businessYears').value,
+                revenue: document.getElementById('revenue').value,
+                employees: document.getElementById('employees').value,
+                fundingPurpose: document.getElementById('fundingPurpose').value,
+                challenges: document.getElementById('challenges').value
+            };
+
+            google.script.run
+                .withSuccessHandler((result) => {
+                    if (result.success) {
+                        receiptInfo.innerHTML = `
+                            <div class="receipt-info">
+                                <strong>✓ 상담 신청이 완료되었습니다!</strong><br>
+                                접수번호: <strong>${result.receiptNumber}</strong><br>
+                                담당자가 빠른 시간 내에 연락드리겠습니다.
+                            </div>
+                        `;
+                    } else {
+                        errorMessage.innerHTML = `<div class="error-message">${result.message}</div>`;
+                    }
+                })
+                .withFailureHandler((error) => {
+                    errorMessage.innerHTML = `<div class="error-message">상담 신청 중 오류: ${error}</div>`;
+                })
+                .saveConsultation(userInfo, recommendedPolicies);
+        }
+
+        // Initialize
+        noResults.style.display = 'block';
+    </script>
+</body>
+</html>
