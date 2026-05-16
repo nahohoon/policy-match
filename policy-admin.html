@@ -79,6 +79,11 @@
     }
     @media (min-width: 640px) { .kpi-grid { grid-template-columns: repeat(4, 1fr); } }
     @media (min-width: 960px) { .kpi-grid { grid-template-columns: repeat(4, 1fr); } }
+    .kpi-grid.performance-grid { margin-top: 0; margin-bottom: 14px; }
+    .performance-panel-title {
+      font-size: 13px; font-weight: 800; color: var(--navy);
+      margin-bottom: 10px; padding-left: 2px;
+    }
     .kpi-card {
       background: var(--white); border-radius: var(--radius); padding: 14px 12px;
       box-shadow: var(--shadow); text-align: center; border: 1px solid var(--gray-100);
@@ -164,6 +169,31 @@
     .consult-card[data-status="계약"] { border-left-color: #16a34a; }
     .consult-card[data-status="보류"] { border-left-color: #f97316; }
     .consult-card[data-status="부적합"] { border-left-color: #dc2626; }
+    .consult-card.is-approved {
+      border-left-color: #16a34a !important;
+      box-shadow: 0 0 0 1px rgba(22,163,74,0.22), 0 6px 28px rgba(22,163,74,0.18);
+    }
+    .consult-card.is-approved .card-progress-fill {
+      background: linear-gradient(90deg, #16a34a, #4ade80) !important;
+      box-shadow: 0 0 8px rgba(22,163,74,0.45);
+    }
+    .consult-card.approval-denied {
+      border-left-color: var(--gray-300) !important;
+      opacity: 0.88;
+    }
+    .consult-card.approval-denied .card-company { color: var(--gray-600); }
+    .approval-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px;
+      background: var(--green-light); color: var(--green); margin-bottom: 6px;
+    }
+    .approval-badge.denied { background: var(--gray-100); color: var(--gray-500); }
+    .card-perf-summary {
+      display: flex; flex-wrap: wrap; gap: 8px 12px;
+      font-size: 11px; font-weight: 700; margin-bottom: 8px; line-height: 1.4;
+    }
+    .card-perf-approved { color: var(--green); }
+    .card-perf-executed { color: var(--navy-light); }
     .card-summary { padding: 12px 14px 10px; cursor: pointer; }
     .card-expand {
       max-height: 800px; opacity: 1; overflow: hidden;
@@ -328,7 +358,8 @@
     .modal-edit h3 { font-size: 14px; font-weight: 800; color: var(--navy); margin-bottom: 12px; }
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--gray-700); margin-bottom: 6px; }
-    .form-group select, .form-group textarea, .form-group input[type="date"] {
+    .form-group select, .form-group textarea, .form-group input[type="date"],
+    .form-group input[type="number"] {
       width: 100%; padding: 10px 12px; border: 1.5px solid var(--gray-200);
       border-radius: 8px; font-size: 14px; font-family: inherit;
     }
@@ -374,6 +405,16 @@
     <div class="kpi-card"><div class="kpi-num" id="stat-rate">0%</div><div class="kpi-label">계약률</div></div>
     <div class="kpi-card"><div class="kpi-num" id="stat-month">0</div><div class="kpi-label">이번달 접수</div></div>
     <div class="kpi-card"><div class="kpi-num" id="stat-avgdays">-</div><div class="kpi-label">평균 진행일</div></div>
+  </div>
+
+  <p class="performance-panel-title">📊 성과 실적</p>
+  <div class="kpi-grid performance-grid" id="performance-kpi-grid">
+    <div class="kpi-card accent-green"><div class="kpi-num" id="stat-approval-amt">0</div><div class="kpi-label">총 승인금액</div></div>
+    <div class="kpi-card accent-gold"><div class="kpi-num" id="stat-execution-amt">0</div><div class="kpi-label">총 실행금액</div></div>
+    <div class="kpi-card"><div class="kpi-num" id="stat-approval-count">0</div><div class="kpi-label">승인건수</div></div>
+    <div class="kpi-card"><div class="kpi-num" id="stat-approval-rate">0%</div><div class="kpi-label">승인율</div></div>
+    <div class="kpi-card"><div class="kpi-num" id="stat-month-approval">0</div><div class="kpi-label">이번달 승인건수</div></div>
+    <div class="kpi-card accent-green"><div class="kpi-num" id="stat-month-approval-amt">0</div><div class="kpi-label">이번달 승인금액</div></div>
   </div>
 
   <section class="today-panel" id="today-panel" aria-label="오늘 할 일">
@@ -497,6 +538,11 @@ var DETAIL_SECTIONS = [
     { key: '다음액션', alt: ['nextAction'] },
     { key: '다음액션예정일', alt: ['nextActionDate'] }
   ]},
+  { title: '성과', fields: [
+    { key: '승인여부', alt: ['approvalStatus'] },
+    { key: '승인금액', alt: ['approvalAmount'] },
+    { key: '실행금액', alt: ['executionAmount'] }
+  ]},
   { title: '메모', fields: [
     { key: '문의내용', alt: ['memo'], full: true },
     { key: '애로사항', alt: ['trouble'], full: true },
@@ -515,6 +561,109 @@ function normalizeStatus(s) {
 function getStatusProgress(status) {
   var s = normalizeStatus(status);
   return (STATUS_CONFIG[s] || STATUS_CONFIG['신규']).pct;
+}
+
+function getApprovalStatus(row) {
+  var v = String(getField(row, '승인여부', ['approvalStatus'])).trim();
+  if (v === '승인' || v === '미승인') return v;
+  return '미정';
+}
+
+function isApproved(row) {
+  return getApprovalStatus(row) === '승인';
+}
+
+function isApprovalDenied(row) {
+  return getApprovalStatus(row) === '미승인';
+}
+
+function parseAmount(raw) {
+  if (raw === '' || raw === null || raw === undefined) return 0;
+  if (typeof raw === 'number' && !isNaN(raw)) return raw;
+  var s = String(raw).replace(/[^\d.-]/g, '');
+  var n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+
+function getApprovalAmount(row) {
+  return parseAmount(getField(row, '승인금액', ['approvalAmount']));
+}
+
+function getExecutionAmount(row) {
+  return parseAmount(getField(row, '실행금액', ['executionAmount']));
+}
+
+function formatAmountKo(n) {
+  return parseAmount(n).toLocaleString('ko-KR');
+}
+
+function needsExecutionRegistration(row) {
+  return isApproved(row) && !getExecutionAmount(row);
+}
+
+function needsApprovalResultCheck(row) {
+  var status = normalizeStatus(getField(row, '상태', ['status']));
+  return status === '상담완료' && getApprovalStatus(row) === '미정';
+}
+
+function isInCurrentMonthByReceipt(row) {
+  var d = parseRowDate(row);
+  if (!d) return false;
+  var now = new Date();
+  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+}
+
+function calcPerformanceStats(rows) {
+  var totalApprovalAmt = 0, totalExecutionAmt = 0, approvalCount = 0;
+  var monthApprovalCount = 0, monthApprovalAmt = 0;
+  var total = rows.length;
+
+  rows.forEach(function(row) {
+    if (!isApproved(row)) return;
+    approvalCount++;
+    var aa = getApprovalAmount(row);
+    var ea = getExecutionAmount(row);
+    totalApprovalAmt += aa;
+    totalExecutionAmt += ea;
+    if (isInCurrentMonthByReceipt(row)) {
+      monthApprovalCount++;
+      monthApprovalAmt += aa;
+    }
+  });
+
+  return {
+    totalApprovalAmt: totalApprovalAmt,
+    totalExecutionAmt: totalExecutionAmt,
+    approvalCount: approvalCount,
+    approvalRate: total ? Math.round((approvalCount / total) * 100) : 0,
+    monthApprovalCount: monthApprovalCount,
+    monthApprovalAmt: monthApprovalAmt
+  };
+}
+
+function renderCardPerfSummary(row) {
+  var parts = [];
+  var approvalStatus = getApprovalStatus(row);
+  var approvalAmt = getApprovalAmount(row);
+  var executionAmt = getExecutionAmount(row);
+
+  if (approvalStatus === '승인') {
+    var approvedLabel = approvalAmt
+      ? '🟢 승인 ' + formatAmountKo(approvalAmt) + '만원'
+      : '🟢 승인';
+    parts.push('<span class="card-perf-approved">' + approvedLabel + '</span>');
+  }
+  if (executionAmt) {
+    parts.push('<span class="card-perf-executed">💰 실행 ' + formatAmountKo(executionAmt) + '만원</span>');
+  }
+  if (!parts.length) return '';
+  return '<div class="card-perf-summary">' + parts.join('') + '</div>';
+}
+
+function renderApprovalBadge(row) {
+  if (isApproved(row)) return '<div class="approval-badge">🟢 승인완료</div>';
+  if (isApprovalDenied(row)) return '<div class="approval-badge denied">미승인</div>';
+  return '';
 }
 
 function startOfDay(d) {
@@ -594,6 +743,7 @@ function getConsultPriority(row) {
   var status = normalizeStatus(getField(row, '상태', ['status']));
   if (isNewNoContact(row)) return 'urgent';
   if ((status === '상담중' || status === '연락시도') && isActionOverdue(row)) return 'urgent';
+  if (needsExecutionRegistration(row) || needsApprovalResultCheck(row)) return 'warn';
   if (isActionDueToday(row)) return 'warn';
   if (isStaleConsult(row)) return 'warn';
   return 'normal';
@@ -631,6 +781,8 @@ function getStatusHint(row) {
   var memo = String(getField(row, '상담메모', ['consultMemo', '처리메모'])).trim();
   var next = String(getField(row, '다음액션', ['nextAction'])).trim();
   var nextDate = getField(row, '다음액션예정일', ['nextActionDate']);
+  if (needsExecutionRegistration(row)) return '실행 등록 필요';
+  if (needsApprovalResultCheck(row)) return '승인결과 확인 필요';
   if (status === '신규' && memo) return '연락시도 권장';
   if (status === '신규' && isNewNoContact(row)) return '신규 미연락 — 우선 연락 필요';
   if (status === '상담완료' && !next && !nextDate) return '후속일정 필요';
@@ -846,6 +998,14 @@ function updateStats() {
   document.getElementById('count-today').textContent = nToday;
   document.getElementById('count-stale').textContent = nStale;
   document.getElementById('count-new-stale').textContent = nNewStale;
+
+  var perf = calcPerformanceStats(pipelineRows);
+  document.getElementById('stat-approval-amt').textContent = formatAmountKo(perf.totalApprovalAmt) + '만';
+  document.getElementById('stat-execution-amt').textContent = formatAmountKo(perf.totalExecutionAmt) + '만';
+  document.getElementById('stat-approval-count').textContent = perf.approvalCount;
+  document.getElementById('stat-approval-rate').textContent = perf.approvalRate + '%';
+  document.getElementById('stat-month-approval').textContent = perf.monthApprovalCount;
+  document.getElementById('stat-month-approval-amt').textContent = formatAmountKo(perf.monthApprovalAmt) + '만';
 }
 
 function loadPipeline() {
@@ -879,10 +1039,11 @@ function loadPipeline() {
     });
 }
 
-function renderProgressBar(status) {
+function renderProgressBar(status, row) {
   var s = normalizeStatus(status);
   var pct = getStatusProgress(s);
   var bar = STATUS_CONFIG[s].bar;
+  if (row && isApproved(row)) bar = '#16a34a';
   return '<div class="card-progress-wrap">' +
     '<div class="card-progress-track"><div class="card-progress-fill" style="width:' + pct + '%;background:' + bar + '"></div></div>' +
     '<span class="card-progress-pct">' + pct + '%</span></div>';
@@ -963,16 +1124,21 @@ function renderConsultCard(row, idx) {
 
   var staleHtml = stale ? '<div class="card-stale-msg">3일 이상 업데이트 없음</div>' : '';
   var hintHtml = hint ? '<div class="card-status-hint">' + escapeHtml(hint) + '</div>' : '';
+  var cardExtraClass = isApproved(row) ? ' is-approved' : (isApprovalDenied(row) ? ' approval-denied' : '');
+  var perfSummaryHtml = renderCardPerfSummary(row);
+  var approvalBadgeHtml = renderApprovalBadge(row);
 
-  return '<article class="consult-card collapsed' + (stale ? ' is-stale' : '') + '" data-status="' + escapeHtml(status) + '" data-idx="' + idx + '">' +
+  return '<article class="consult-card collapsed' + (stale ? ' is-stale' : '') + cardExtraClass + '" data-status="' + escapeHtml(status) + '" data-idx="' + idx + '">' +
     '<span class="status-badge" data-status="' + escapeHtml(status) + '">' + escapeHtml(status) + '</span>' +
     '<div class="card-summary">' +
       renderPriorityBadge(row) +
-      renderProgressBar(status) +
+      approvalBadgeHtml +
+      renderProgressBar(status, row) +
       '<div class="card-top"><div class="card-title-block">' +
         '<div class="card-company">' + escapeHtml(company) + '</div>' +
         '<div class="card-receipt">' + escapeHtml(receipt) + '</div>' +
       '</div></div>' +
+      perfSummaryHtml +
       staleHtml + hintHtml +
       '<div class="card-info-grid">' +
         '<div class="card-info-item"><span class="card-info-icon">📞</span><span class="card-info-text">' + escapeHtml(phone) + '</span></div>' +
@@ -1025,6 +1191,9 @@ function saveConsultUpdate(row, fields) {
     processMemo: fields.consultMemo
   };
   if (fields.nextActionDate !== undefined) payload.nextActionDate = fields.nextActionDate;
+  if (fields.approvalStatus !== undefined) payload.approvalStatus = fields.approvalStatus;
+  if (fields.approvalAmount !== undefined) payload.approvalAmount = fields.approvalAmount;
+  if (fields.executionAmount !== undefined) payload.executionAmount = fields.executionAmount;
 
   showLoading();
   fetch(GAS_URL, {
@@ -1048,6 +1217,9 @@ function saveConsultUpdate(row, fields) {
       }
       if (fields.nextAction !== undefined) row['다음액션'] = fields.nextAction;
       if (fields.nextActionDate !== undefined) row['다음액션예정일'] = fields.nextActionDate;
+      if (fields.approvalStatus !== undefined) row['승인여부'] = fields.approvalStatus;
+      if (fields.approvalAmount !== undefined) row['승인금액'] = fields.approvalAmount;
+      if (fields.executionAmount !== undefined) row['실행금액'] = fields.executionAmount;
       updateStats();
       renderList();
       if (detailRow && getField(detailRow, '접수번호', ['receiptNo']) === receiptNo) openDetailModal(row);
@@ -1085,12 +1257,15 @@ function openDetailModal(row) {
   document.getElementById('detail-modal-title').textContent = company;
   document.getElementById('detail-modal-sub').textContent = receipt;
   var banner = document.getElementById('detail-modal-status');
-  banner.textContent = status;
+  banner.textContent = isApproved(row) ? status + ' · 🟢 승인완료' : status;
   banner.setAttribute('data-status', status);
 
   var consultMemo = getField(row, '상담메모', ['consultMemo', '처리메모']);
   var nextAction = getField(row, '다음액션', ['nextAction']);
   var nextActionDate = toDateInputValue(getField(row, '다음액션예정일', ['nextActionDate']));
+  var approvalStatus = getApprovalStatus(row);
+  var approvalAmount = getApprovalAmount(row);
+  var executionAmount = getExecutionAmount(row);
   var statusOpts = STATUS_LIST.map(function(s) {
     return '<option value="' + s + '"' + (s === status ? ' selected' : '') + '>' + s + '</option>';
   }).join('');
@@ -1101,9 +1276,14 @@ function openDetailModal(row) {
     '<div class="form-group"><label>상담 메모</label><textarea id="detail-memo" class="modal-textarea">' + escapeHtml(consultMemo) + '</textarea></div>' +
     '<div class="form-group"><label>다음 액션</label><textarea id="detail-next" rows="2">' + escapeHtml(nextAction) + '</textarea></div>' +
     '<div class="form-group"><label>다음 액션 예정일</label><input type="date" id="detail-next-date" value="' + escapeHtml(nextActionDate) + '" /></div>' +
-    '<div class="form-group"><label>승인금액 (준비중)</label>' +
-    '<input type="text" disabled placeholder="승인여부·승인금액·실행금액 — 다음 단계" />' +
-    '<p class="approval-note">시트 컬럼 연동 전 UI만 제공됩니다.</p></div>' +
+    '<h3 style="margin-top:16px;margin-bottom:12px;font-size:14px;font-weight:800;color:var(--navy);">성과 관리</h3>' +
+    '<div class="form-group"><label>승인여부</label><select id="detail-approval-status">' +
+      '<option value="미정"' + (approvalStatus === '미정' ? ' selected' : '') + '>미정</option>' +
+      '<option value="승인"' + (approvalStatus === '승인' ? ' selected' : '') + '>승인</option>' +
+      '<option value="미승인"' + (approvalStatus === '미승인' ? ' selected' : '') + '>미승인</option>' +
+    '</select></div>' +
+    '<div class="form-group"><label>승인금액 (만원)</label><input type="number" id="detail-approval-amount" min="0" step="1" value="' + (approvalAmount ? approvalAmount : '') + '" placeholder="예: 5000" /></div>' +
+    '<div class="form-group"><label>실행금액 (만원)</label><input type="number" id="detail-execution-amount" min="0" step="1" value="' + (executionAmount ? executionAmount : '') + '" placeholder="예: 3000" /></div>' +
   '</div>';
 
   document.getElementById('detail-modal-body').innerHTML = html;
@@ -1123,7 +1303,10 @@ function saveDetailFromModal() {
     status: document.getElementById('detail-status').value,
     consultMemo: document.getElementById('detail-memo').value.trim(),
     nextAction: document.getElementById('detail-next').value.trim(),
-    nextActionDate: document.getElementById('detail-next-date').value
+    nextActionDate: document.getElementById('detail-next-date').value,
+    approvalStatus: document.getElementById('detail-approval-status').value,
+    approvalAmount: document.getElementById('detail-approval-amount').value,
+    executionAmount: document.getElementById('detail-execution-amount').value
   });
 }
 </script>
