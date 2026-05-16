@@ -27,6 +27,8 @@
       --yellow: #d97706;
       --yellow-light: #fef3c7;
       --red: #dc2626;
+      --red-light: #fee2e2;
+      --teal: #0d9488;
       --radius: 12px;
       --shadow: 0 4px 24px rgba(15,36,72,0.10);
       --shadow-lg: 0 8px 40px rgba(15,36,72,0.18);
@@ -53,7 +55,7 @@
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 6px;
       padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 700;
-      border: none; cursor: pointer; font-family: inherit; transition: all 0.2s;
+      border: none; cursor: pointer; font-family: inherit; transition: all 0.2s; text-decoration: none;
     }
     .btn-gold { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: var(--navy); }
     .btn-outline { background: transparent; color: var(--white); border: 1.5px solid rgba(255,255,255,0.35); }
@@ -73,36 +75,43 @@
     }
     .kpi-grid {
       display: grid; grid-template-columns: repeat(2, 1fr);
-      gap: 10px; margin-bottom: 16px;
+      gap: 10px; margin-bottom: 14px;
     }
     @media (min-width: 640px) { .kpi-grid { grid-template-columns: repeat(4, 1fr); } }
     @media (min-width: 960px) { .kpi-grid { grid-template-columns: repeat(4, 1fr); } }
     .kpi-card {
-      background: var(--white); border-radius: var(--radius); padding: 14px 16px;
-      box-shadow: var(--shadow); border: 1px solid var(--gray-100);
-      position: relative; overflow: hidden;
+      background: var(--white); border-radius: var(--radius); padding: 14px 12px;
+      box-shadow: var(--shadow); text-align: center; border: 1px solid var(--gray-100);
     }
-    .kpi-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, var(--navy), var(--gold));
+    .kpi-num { font-size: 22px; font-weight: 800; color: var(--navy); line-height: 1.2; }
+    .kpi-label { font-size: 11px; color: var(--gray-500); margin-top: 4px; font-weight: 600; }
+    .kpi-card.accent-gold .kpi-num { color: var(--gold); }
+    .kpi-card.accent-green .kpi-num { color: var(--green); }
+    .today-panel {
+      background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 100%);
+      border-radius: var(--radius); padding: 16px; margin-bottom: 16px;
+      border: 1px solid rgba(201,168,76,0.25);
     }
-    .kpi-card.kpi-highlight::before { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
-    .kpi-card.kpi-success::before { background: linear-gradient(90deg, #16a34a, #4ade80); }
-    .kpi-num {
-      font-size: 26px; font-weight: 800; color: var(--navy); line-height: 1.1;
-      letter-spacing: -0.02em;
+    .today-panel-title { color: var(--gold-light); font-size: 14px; font-weight: 800; margin-bottom: 12px; }
+    .today-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    @media (max-width: 520px) { .today-grid { grid-template-columns: 1fr; } }
+    .today-chip {
+      background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 10px; padding: 12px 10px; cursor: pointer; text-align: center;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      font-family: inherit; color: inherit;
     }
-    .kpi-num.accent { color: var(--gold); }
-    .kpi-num.success { color: #15803d; }
-    .kpi-label { font-size: 11px; color: var(--gray-500); margin-top: 6px; font-weight: 600; }
-    .kpi-sub { font-size: 10px; color: var(--gray-400); margin-top: 2px; }
+    .today-chip:hover { background: rgba(255,255,255,0.14); transform: translateY(-1px); }
+    .today-chip.active { border-color: var(--gold); background: rgba(201,168,76,0.18); }
+    .today-chip-num { font-size: 24px; font-weight: 800; color: var(--white); }
+    .today-chip-label { font-size: 11px; color: rgba(255,255,255,0.75); margin-top: 4px; font-weight: 600; }
+    .today-chip-danger .today-chip-num { color: #fca5a5; }
+    .today-chip-warn .today-chip-num { color: #fde68a; }
     .filter-bar {
       background: var(--white); border-radius: var(--radius); padding: 14px 16px;
       box-shadow: var(--shadow); margin-bottom: 16px;
     }
-    .filter-row {
-      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
-    }
+    .filter-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
     .filter-row + .filter-row { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--gray-100); }
     .filter-label { font-size: 12px; font-weight: 700; color: var(--gray-600); min-width: 52px; }
     .status-pills { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
@@ -111,116 +120,129 @@
       border: 1.5px solid var(--gray-200); background: var(--white); color: var(--gray-600);
       cursor: pointer; transition: all 0.15s;
     }
-    .pill.active { color: var(--white); border-color: transparent; box-shadow: 0 2px 8px rgba(15,36,72,0.15); }
-    .pill[data-status="전체"].active { background: var(--navy); border-color: var(--navy); }
-    .pill[data-status="신규"] { border-color: #94a3b8; color: #64748b; }
-    .pill[data-status="신규"].active { background: #64748b; }
-    .pill[data-status="연락시도"] { border-color: #f59e0b; color: #b45309; }
-    .pill[data-status="연락시도"].active { background: #d97706; }
-    .pill[data-status="상담중"] { border-color: #3b82f6; color: #1d4ed8; }
-    .pill[data-status="상담중"].active { background: #2563eb; }
-    .pill[data-status="상담완료"] { border-color: #14b8a6; color: #0d9488; }
-    .pill[data-status="상담완료"].active { background: #0d9488; }
-    .pill[data-status="계약"] { border-color: #22c55e; color: #15803d; }
-    .pill[data-status="계약"].active { background: #16a34a; }
-    .pill[data-status="보류"] { border-color: #f97316; color: #c2410c; }
-    .pill[data-status="보류"].active { background: #ea580c; }
-    .pill[data-status="부적합"] { border-color: #ef4444; color: #dc2626; }
-    .pill[data-status="부적합"].active { background: #dc2626; }
+    .pill.active { color: var(--white); border-color: transparent; }
+    .pill[data-status="전체"].active { background: var(--navy); }
+    .pill[data-status="신규"] { border-color: #cbd5e1; }
+    .pill[data-status="신규"].active { background: #64748b; color: #fff; }
+    .pill[data-status="연락시도"] { border-color: #fde68a; }
+    .pill[data-status="연락시도"].active { background: #d97706; color: #fff; }
+    .pill[data-status="상담중"] { border-color: #93c5fd; }
+    .pill[data-status="상담중"].active { background: #2563eb; color: #fff; }
+    .pill[data-status="상담완료"] { border-color: #5eead4; }
+    .pill[data-status="상담완료"].active { background: #0d9488; color: #fff; }
+    .pill[data-status="계약"] { border-color: #86efac; }
+    .pill[data-status="계약"].active { background: #16a34a; color: #fff; }
+    .pill[data-status="보류"] { border-color: #fdba74; }
+    .pill[data-status="보류"].active { background: #ea580c; color: #fff; }
+    .pill[data-status="부적합"] { border-color: #fca5a5; }
+    .pill[data-status="부적합"].active { background: #dc2626; color: #fff; }
     .filter-input, .filter-select {
       padding: 8px 12px; border: 1.5px solid var(--gray-200); border-radius: 8px;
-      font-size: 13px; font-family: inherit; color: var(--gray-800); background: var(--white);
-      min-width: 0;
+      font-size: 13px; font-family: inherit; color: var(--gray-800); background: var(--white); min-width: 0;
     }
     .filter-input { flex: 1; min-width: 140px; }
     .filter-select { min-width: 120px; }
     .filter-select:disabled { opacity: 0.55; cursor: not-allowed; background: var(--gray-50); }
     .list-meta { font-size: 13px; color: var(--gray-500); margin-bottom: 12px; }
-    #consult-list { display: flex; flex-direction: column; gap: 14px; }
-    @media (max-width: 480px) { #consult-list { gap: 12px; } }
+    #consult-list { display: flex; flex-direction: column; gap: 10px; }
+    @media (max-width: 480px) { #consult-list { gap: 8px; } }
     .consult-card {
       background: var(--white); border-radius: 14px; box-shadow: var(--shadow);
-      padding: 18px 18px 16px; border-left: 4px solid var(--gray-300);
-      cursor: pointer; transition: box-shadow 0.22s, transform 0.18s, border-color 0.2s;
-      position: relative;
+      padding: 0; border-left: 4px solid var(--gray-300);
+      transition: box-shadow 0.22s, transform 0.18s, border-color 0.2s;
+      position: relative; overflow: hidden;
     }
-    .consult-card:hover {
-      box-shadow: var(--shadow-lg); transform: translateY(-2px);
-      border-left-width: 5px;
+    .consult-card:hover { box-shadow: var(--shadow-lg); }
+    .consult-card.is-stale {
+      border-left-color: var(--red) !important;
+      box-shadow: 0 0 0 1px rgba(220,38,38,0.15), 0 4px 20px rgba(220,38,38,0.12);
     }
     .consult-card[data-status="신규"] { border-left-color: #94a3b8; }
-    .consult-card[data-status="연락시도"] { border-left-color: #f59e0b; }
+    .consult-card[data-status="연락시도"] { border-left-color: #eab308; }
     .consult-card[data-status="상담중"] { border-left-color: #3b82f6; }
     .consult-card[data-status="상담완료"] { border-left-color: #14b8a6; }
-    .consult-card[data-status="계약"] { border-left-color: #22c55e; }
+    .consult-card[data-status="계약"] { border-left-color: #16a34a; }
     .consult-card[data-status="보류"] { border-left-color: #f97316; }
-    .consult-card[data-status="부적합"] { border-left-color: #ef4444; }
+    .consult-card[data-status="부적합"] { border-left-color: #dc2626; }
+    .card-summary { padding: 12px 14px 10px; cursor: pointer; }
+    .card-expand {
+      max-height: 800px; opacity: 1; overflow: hidden;
+      transition: max-height 0.35s ease, opacity 0.28s ease, padding 0.28s ease;
+      padding: 0 14px 14px; border-top: 1px solid var(--gray-100);
+    }
+    .consult-card.collapsed .card-expand {
+      max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0;
+      border-top-color: transparent; pointer-events: none;
+    }
+    .priority-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px;
+      margin-bottom: 6px;
+    }
+    .priority-badge.urgent { background: #fee2e2; color: #b91c1c; }
+    .priority-badge.warn { background: #fef3c7; color: #b45309; }
+    .priority-badge.normal { background: #dcfce7; color: #15803d; }
     .card-progress-wrap {
-      display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+      display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
     }
     .card-progress-track {
-      flex: 1; height: 4px; background: var(--gray-100); border-radius: 99px; overflow: hidden;
+      flex: 1; height: 5px; background: var(--gray-100); border-radius: 99px; overflow: hidden;
     }
-    .card-progress-fill {
-      height: 100%; border-radius: 99px; transition: width 0.45s ease;
-      background: linear-gradient(90deg, var(--navy-light), var(--gold));
-    }
-    .card-progress-pct { font-size: 11px; font-weight: 700; color: var(--gray-500); min-width: 34px; text-align: right; }
-    .card-top {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      gap: 12px; margin-bottom: 10px; padding-right: 4px;
-    }
-    .card-title-block { flex: 1; min-width: 0; padding-right: 72px; }
-    .card-company {
-      font-size: 17px; font-weight: 800; color: var(--navy);
-      line-height: 1.35; word-break: keep-all;
-    }
-    .card-receipt { font-size: 11px; color: var(--gray-400); margin-top: 4px; font-family: monospace; }
+    .card-progress-fill { height: 100%; border-radius: 99px; transition: width 0.3s; }
+    .card-progress-pct { font-size: 11px; font-weight: 700; color: var(--gray-500); min-width: 32px; text-align: right; }
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+    .card-title-block { flex: 1; min-width: 0; }
+    .card-company { font-size: 16px; font-weight: 800; color: var(--navy); line-height: 1.3; }
+    .card-receipt { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
     .status-badge {
-      position: absolute; top: 16px; right: 16px;
-      padding: 5px 11px; border-radius: 20px; font-size: 11px; font-weight: 700;
-      white-space: nowrap; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      position: absolute; top: 10px; right: 12px;
+      padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap;
     }
     .status-badge[data-status="신규"] { background: #f1f5f9; color: #64748b; }
     .status-badge[data-status="연락시도"] { background: #fef3c7; color: #b45309; }
     .status-badge[data-status="상담중"] { background: #dbeafe; color: #1d4ed8; }
-    .status-badge[data-status="상담완료"] { background: #ccfbf1; color: #0d9488; }
-    .status-badge[data-status="계약"] { background: #dcfce7; color: #15803d; }
+    .status-badge[data-status="상담완료"] { background: #ccfbf1; color: #0f766e; }
+    .status-badge[data-status="계약"] { background: var(--green-light); color: var(--green); }
     .status-badge[data-status="보류"] { background: #ffedd5; color: #c2410c; }
-    .status-badge[data-status="부적합"] { background: #fee2e2; color: #dc2626; }
+    .status-badge[data-status="부적합"] { background: #fee2e2; color: var(--red); }
     .card-info-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; margin-bottom: 10px;
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px 10px;
+      font-size: 12px; color: var(--gray-600); margin-bottom: 8px;
     }
-    @media (max-width: 400px) { .card-info-grid { grid-template-columns: 1fr; } }
-    .card-info-item {
-      display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--gray-600);
-    }
-    .card-info-icon { font-size: 13px; opacity: 0.85; flex-shrink: 0; }
+    @media (min-width: 480px) { .card-info-grid { grid-template-columns: repeat(3, 1fr); } }
+    .card-info-item { display: flex; align-items: center; gap: 4px; min-width: 0; }
+    .card-info-icon { flex-shrink: 0; }
     .card-info-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .card-policy {
-      font-size: 12px; color: var(--gray-600); margin-bottom: 12px; padding: 8px 10px;
-      background: var(--gray-50); border-radius: 8px; line-height: 1.5;
+    .card-stale-msg {
+      font-size: 11px; font-weight: 700; color: var(--red); margin-bottom: 6px;
     }
-    .card-actions {
-      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; padding-top: 14px;
-      border-top: 1px solid var(--gray-100);
+    .card-status-hint {
+      font-size: 11px; color: var(--gray-500); font-style: italic; margin-bottom: 8px; line-height: 1.4;
     }
-    .card-actions select {
-      font-size: 12px; padding: 8px 10px; border-radius: 8px;
-      border: 1.5px solid var(--gray-200); font-family: inherit; min-width: 110px;
+    .card-quick-actions {
+      display: flex; gap: 6px; justify-content: flex-end; margin-top: 4px;
     }
-    .card-actions textarea, .card-actions input[type="text"] {
-      font-size: 12px; padding: 8px 10px; border-radius: 8px;
+    .btn-quick {
+      width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--gray-200);
+      background: var(--gray-50); font-size: 15px; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background 0.15s, transform 0.12s;
+    }
+    .btn-quick:hover { background: var(--gray-100); transform: scale(1.05); }
+    .btn-quick:disabled { opacity: 0.4; cursor: not-allowed; }
+    .card-expand .form-row { margin-bottom: 10px; }
+    .card-expand label { display: block; font-size: 11px; font-weight: 700; color: var(--gray-600); margin-bottom: 4px; }
+    .card-expand select, .card-expand textarea, .card-expand input[type="date"], .card-expand input[type="text"] {
+      width: 100%; font-size: 12px; padding: 8px 10px; border-radius: 8px;
       border: 1.5px solid var(--gray-200); font-family: inherit;
     }
-    .card-actions textarea { flex: 1; min-width: 100%; min-height: 56px; resize: vertical; }
+    .card-expand textarea { min-height: 56px; resize: vertical; }
     .btn-save-card {
-      background: linear-gradient(135deg, var(--gold), var(--gold-light)) !important;
-      color: var(--navy) !important; font-weight: 800 !important;
-      box-shadow: 0 2px 10px rgba(201,168,76,0.35);
-      padding: 8px 18px !important;
+      width: 100%; margin-top: 4px; padding: 10px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: var(--navy); font-weight: 800; border: none; border-radius: 8px; cursor: pointer;
+      font-size: 13px; font-family: inherit;
     }
-    .btn-save-card:hover { filter: brightness(1.05); transform: translateY(-1px); }
     .empty-state {
       text-align: center; padding: 48px 20px; background: var(--white);
       border-radius: var(--radius); box-shadow: var(--shadow);
@@ -245,16 +267,13 @@
       opacity: 0; transition: opacity 0.3s; pointer-events: none; max-width: 90vw; text-align: center;
     }
     #toast.show { opacity: 1; }
-    /* 상세 모달 */
     .modal-overlay {
       display: none; position: fixed; inset: 0; z-index: 150;
       background: rgba(9,24,48,0.65); backdrop-filter: blur(3px);
       padding: 16px; align-items: flex-end; justify-content: center;
     }
     .modal-overlay.show { display: flex; }
-    @media (min-width: 640px) {
-      .modal-overlay { align-items: center; padding: 24px; }
-    }
+    @media (min-width: 640px) { .modal-overlay { align-items: center; padding: 24px; } }
     .detail-modal {
       background: var(--white); border-radius: 16px 16px 0 0;
       width: 100%; max-width: 560px; max-height: min(92vh, 720px);
@@ -270,44 +289,21 @@
     }
     .modal-header {
       padding: 18px 20px 14px; border-bottom: 1px solid var(--gray-100);
-      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
-      flex-shrink: 0;
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-shrink: 0;
     }
     .modal-header h2 { font-size: 18px; font-weight: 800; color: var(--navy); line-height: 1.35; }
     .modal-header .sub { font-size: 12px; color: var(--gray-500); margin-top: 4px; }
     .modal-status-banner {
       display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
-      margin-top: 10px;
+      padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-top: 10px;
     }
     .modal-status-banner[data-status="신규"] { background: #f1f5f9; color: #64748b; }
     .modal-status-banner[data-status="연락시도"] { background: #fef3c7; color: #b45309; }
     .modal-status-banner[data-status="상담중"] { background: #dbeafe; color: #1d4ed8; }
-    .modal-status-banner[data-status="상담완료"] { background: #ccfbf1; color: #0d9488; }
-    .modal-status-banner[data-status="계약"] { background: #dcfce7; color: #15803d; }
+    .modal-status-banner[data-status="상담완료"] { background: #ccfbf1; color: #0f766e; }
+    .modal-status-banner[data-status="계약"] { background: var(--green-light); color: var(--green); }
     .modal-status-banner[data-status="보류"] { background: #ffedd5; color: #c2410c; }
-    .modal-status-banner[data-status="부적합"] { background: #fee2e2; color: #dc2626; }
-    .modal-section { margin-bottom: 20px; }
-    .modal-section-title {
-      font-size: 12px; font-weight: 800; color: var(--navy);
-      text-transform: uppercase; letter-spacing: 0.04em;
-      padding: 8px 12px; background: linear-gradient(90deg, rgba(15,36,72,0.06), transparent);
-      border-left: 3px solid var(--gold); border-radius: 0 6px 6px 0;
-      margin-bottom: 12px;
-    }
-    .modal-section-future { opacity: 0.92; }
-    .field-hint { font-size: 11px; color: var(--gray-400); margin-top: 8px; }
-    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    @media (max-width: 400px) { .form-row-2 { grid-template-columns: 1fr; } }
-    .form-group select:focus, .form-group textarea:focus, .form-group input:focus {
-      outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(15,36,72,0.08);
-    }
-    .form-group textarea.modal-textarea {
-      min-height: 88px; line-height: 1.55; background: var(--gray-50);
-    }
-    .form-group input:disabled, .form-group select:disabled {
-      background: var(--gray-100); color: var(--gray-500); cursor: not-allowed;
-    }
+    .modal-status-banner[data-status="부적합"] { background: #fee2e2; color: var(--red); }
     .modal-close {
       width: 36px; height: 36px; border-radius: 50%; border: none;
       background: var(--gray-100); color: var(--gray-600); font-size: 20px;
@@ -316,29 +312,29 @@
     .modal-body {
       padding: 16px 20px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch;
     }
-    .detail-grid {
-      display: grid; grid-template-columns: 1fr; gap: 10px;
+    .detail-section { margin-bottom: 18px; }
+    .detail-section-title {
+      font-size: 13px; font-weight: 800; color: var(--navy);
+      padding: 6px 12px; background: var(--gray-100);
+      border-left: 3px solid var(--gold); border-radius: 0 6px 6px 0; margin-bottom: 10px;
     }
-    @media (min-width: 480px) {
-      .detail-grid { grid-template-columns: 1fr 1fr; }
-    }
-    .detail-item {
-      background: var(--gray-50); border-radius: 8px; padding: 10px 12px;
-    }
+    .detail-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    @media (min-width: 480px) { .detail-grid { grid-template-columns: 1fr 1fr; } }
+    .detail-item { background: var(--gray-50); border-radius: 8px; padding: 10px 12px; }
     .detail-item.full { grid-column: 1 / -1; }
     .detail-label { font-size: 11px; font-weight: 700; color: var(--gray-400); margin-bottom: 4px; }
     .detail-value { font-size: 13px; font-weight: 600; color: var(--gray-800); line-height: 1.5; word-break: break-word; }
-    .modal-edit {
-      margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--gray-100);
-    }
+    .modal-edit { margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--gray-100); }
     .modal-edit h3 { font-size: 14px; font-weight: 800; color: var(--navy); margin-bottom: 12px; }
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--gray-700); margin-bottom: 6px; }
-    .form-group select, .form-group textarea, .form-group input[type="text"] {
+    .form-group select, .form-group textarea, .form-group input[type="date"] {
       width: 100%; padding: 10px 12px; border: 1.5px solid var(--gray-200);
       border-radius: 8px; font-size: 14px; font-family: inherit;
     }
     .form-group textarea { min-height: 72px; resize: vertical; }
+    .modal-textarea { min-height: 88px; }
+    .approval-note { font-size: 11px; color: var(--gray-400); margin-top: 6px; }
     .modal-footer {
       padding: 14px 20px 20px; border-top: 1px solid var(--gray-100);
       display: flex; gap: 10px; flex-shrink: 0;
@@ -373,12 +369,30 @@
     <div class="kpi-card"><div class="kpi-num" id="stat-total">0</div><div class="kpi-label">전체 상담</div></div>
     <div class="kpi-card"><div class="kpi-num" id="stat-new">0</div><div class="kpi-label">신규</div></div>
     <div class="kpi-card"><div class="kpi-num" id="stat-active">0</div><div class="kpi-label">진행중</div></div>
-    <div class="kpi-card kpi-success"><div class="kpi-num success" id="stat-done">0</div><div class="kpi-label">완료/계약</div></div>
-    <div class="kpi-card kpi-highlight"><div class="kpi-num accent" id="stat-contract">0</div><div class="kpi-label">계약건수</div></div>
-    <div class="kpi-card kpi-highlight"><div class="kpi-num accent" id="stat-rate">0%</div><div class="kpi-label">계약률</div><div class="kpi-sub">전체 대비</div></div>
+    <div class="kpi-card accent-green"><div class="kpi-num" id="stat-done">0</div><div class="kpi-label">완료·계약</div></div>
+    <div class="kpi-card accent-gold"><div class="kpi-num" id="stat-contract">0</div><div class="kpi-label">계약건수</div></div>
+    <div class="kpi-card"><div class="kpi-num" id="stat-rate">0%</div><div class="kpi-label">계약률</div></div>
     <div class="kpi-card"><div class="kpi-num" id="stat-month">0</div><div class="kpi-label">이번달 접수</div></div>
-    <div class="kpi-card"><div class="kpi-num" id="stat-avgdays">0</div><div class="kpi-label">평균 진행일</div><div class="kpi-sub">접수 기준</div></div>
+    <div class="kpi-card"><div class="kpi-num" id="stat-avgdays">-</div><div class="kpi-label">평균 진행일</div></div>
   </div>
+
+  <section class="today-panel" id="today-panel" aria-label="오늘 할 일">
+    <h2 class="today-panel-title">📌 오늘 할 일</h2>
+    <div class="today-grid" id="today-grid">
+      <button type="button" class="today-chip" data-work-focus="today">
+        <div class="today-chip-num" id="count-today">0</div>
+        <div class="today-chip-label">오늘 예정 상담</div>
+      </button>
+      <button type="button" class="today-chip today-chip-danger" data-work-focus="stale">
+        <div class="today-chip-num" id="count-stale">0</div>
+        <div class="today-chip-label">지연 상담 (3일+)</div>
+      </button>
+      <button type="button" class="today-chip today-chip-warn" data-work-focus="newNoContact">
+        <div class="today-chip-num" id="count-new-stale">0</div>
+        <div class="today-chip-label">신규 미연락 (2일+)</div>
+      </button>
+    </div>
+  </section>
 
   <div class="filter-bar">
     <div class="filter-row">
@@ -413,13 +427,13 @@
   <div id="consult-list"></div>
 </main>
 
-<!-- 상세 모달 -->
 <div class="modal-overlay" id="detail-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="detail-modal-title">
   <div class="detail-modal" id="detail-modal" onclick="event.stopPropagation()">
     <div class="modal-header">
       <div>
         <h2 id="detail-modal-title">상담 상세</h2>
         <div class="sub" id="detail-modal-sub"></div>
+        <div class="modal-status-banner" id="detail-modal-status" data-status="신규">신규</div>
       </div>
       <button type="button" class="modal-close" onclick="closeDetailModal()" aria-label="닫기">&times;</button>
     </div>
@@ -442,43 +456,207 @@ var filterStatus = '전체';
 var filterDate = 'all';
 var filterAssignee = 'all';
 var searchQuery = '';
+var workFocus = '';
 var detailRow = null;
 
 var STATUS_LIST = ['신규', '연락시도', '상담중', '상담완료', '계약', '보류', '부적합'];
 
 var STATUS_CONFIG = {
-  '신규':     { progress: 10,  bar: '#94a3b8' },
-  '연락시도': { progress: 25,  bar: '#f59e0b' },
-  '상담중':   { progress: 50,  bar: '#3b82f6' },
-  '상담완료': { progress: 75,  bar: '#14b8a6' },
-  '계약':     { progress: 100, bar: '#22c55e' },
-  '보류':     { progress: 40,  bar: '#f97316' },
-  '부적합':   { progress: 100, bar: '#ef4444' }
+  '신규': { pct: 10, bar: '#94a3b8' },
+  '연락시도': { pct: 25, bar: '#eab308' },
+  '상담중': { pct: 50, bar: '#3b82f6' },
+  '상담완료': { pct: 75, bar: '#14b8a6' },
+  '계약': { pct: 100, bar: '#16a34a' },
+  '보류': { pct: 40, bar: '#f97316' },
+  '부적합': { pct: 100, bar: '#dc2626' }
 };
 
-function normalizeStatus(status) {
-  var s = String(status || '신규').trim();
-  return STATUS_CONFIG[s] ? s : '신규';
+var TERMINAL_STATUSES = { '계약': true, '부적합': true };
+
+var DETAIL_SECTIONS = [
+  { title: '기본정보', fields: [
+    { key: '접수번호', alt: ['receiptNo'] },
+    { key: '접수일시', alt: ['접수일', 'dateTime'] },
+    { key: '상태', alt: ['status'] },
+    { key: '업체명', alt: ['company'] },
+    { key: '신청자명', alt: ['name', '대표자명'] },
+    { key: '연락처', alt: ['phone'] }
+  ]},
+  { title: '상담정보', fields: [
+    { key: '관심 사업명', alt: ['policyName', '추천사업'], full: true },
+    { key: '희망 상담시간', alt: ['preferTime'] },
+    { key: '지역', alt: ['region'] },
+    { key: '업종', alt: ['industry'] },
+    { key: '사업자유형', alt: ['bizType'] }
+  ]},
+  { title: '진행정보', fields: [
+    { key: '창업연수', alt: ['bizAge'] },
+    { key: '연매출(만원)', alt: ['revenue', '연매출'] },
+    { key: '종업원수', alt: ['employees'] },
+    { key: '자금목적', alt: ['purposes', '자금필요목적'], full: true },
+    { key: '다음액션', alt: ['nextAction'] },
+    { key: '다음액션예정일', alt: ['nextActionDate'] }
+  ]},
+  { title: '메모', fields: [
+    { key: '문의내용', alt: ['memo'], full: true },
+    { key: '애로사항', alt: ['trouble'], full: true },
+    { key: '상담메모', alt: ['consultMemo'], full: true },
+    { key: '처리메모', alt: ['processMemo'], full: true }
+  ]}
+];
+
+function normalizeStatus(s) {
+  var v = String(s || '신규').trim();
+  if (STATUS_CONFIG[v]) return v;
+  if (v === '상담완료') return '상담완료';
+  return '신규';
 }
 
 function getStatusProgress(status) {
-  var cfg = STATUS_CONFIG[normalizeStatus(status)];
-  return cfg ? cfg.progress : 10;
+  var s = normalizeStatus(status);
+  return (STATUS_CONFIG[s] || STATUS_CONFIG['신규']).pct;
 }
 
-function renderProgressBar(status) {
-  var s = normalizeStatus(status);
-  var pct = getStatusProgress(s);
-  var bar = STATUS_CONFIG[s].bar;
-  return '<div class="card-progress-wrap">' +
-    '<div class="card-progress-track"><div class="card-progress-fill" style="width:' + pct + '%;background:' + bar + '"></div></div>' +
-    '<span class="card-progress-pct">' + pct + '%</span></div>';
+function startOfDay(d) {
+  var x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
+
+function parseDateAny(raw) {
+  if (!raw) return null;
+  if (raw instanceof Date && !isNaN(raw.getTime())) return raw;
+  var s = String(raw).trim();
+  if (!s) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    var p = s.split('-');
+    return new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
+  }
+  var d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function toDateInputValue(raw) {
+  var d = parseDateAny(raw);
+  if (!d) return '';
+  var y = d.getFullYear();
+  var m = String(d.getMonth() + 1).padStart(2, '0');
+  var day = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+
+function daysBetween(a, b) {
+  var ms = startOfDay(b) - startOfDay(a);
+  return Math.floor(ms / 86400000);
+}
+
+function getLastModifiedDate(row) {
+  var raw = getField(row, '최종수정일', ['lastModified', '수정일시']);
+  if (!raw) raw = getField(row, '접수일시', ['접수일', 'dateTime']);
+  return parseDateAny(raw);
+}
+
+function getNextActionDate(row) {
+  return parseDateAny(getField(row, '다음액션예정일', ['nextActionDate']));
+}
+
+function isTerminalStatus(status) {
+  return !!TERMINAL_STATUSES[normalizeStatus(status)];
+}
+
+function isStaleConsult(row) {
+  if (isTerminalStatus(getField(row, '상태', ['status']))) return false;
+  var d = getLastModifiedDate(row);
+  if (!d) return false;
+  return daysBetween(d, new Date()) >= 3;
+}
+
+function isNewNoContact(row) {
+  if (normalizeStatus(getField(row, '상태', ['status'])) !== '신규') return false;
+  var d = parseRowDate(row);
+  if (!d) return false;
+  return daysBetween(d, new Date()) >= 2;
+}
+
+function isActionDueToday(row) {
+  var nd = getNextActionDate(row);
+  if (!nd) return false;
+  return daysBetween(nd, new Date()) === 0;
+}
+
+function isActionOverdue(row) {
+  var nd = getNextActionDate(row);
+  if (!nd) return false;
+  return startOfDay(nd) < startOfDay(new Date());
+}
+
+function getConsultPriority(row) {
+  var status = normalizeStatus(getField(row, '상태', ['status']));
+  if (isNewNoContact(row)) return 'urgent';
+  if ((status === '상담중' || status === '연락시도') && isActionOverdue(row)) return 'urgent';
+  if (isActionDueToday(row)) return 'warn';
+  if (isStaleConsult(row)) return 'warn';
+  return 'normal';
+}
+
+function priorityRank(p) {
+  if (p === 'urgent') return 0;
+  if (p === 'warn') return 1;
+  return 2;
+}
+
+function compareRowPriority(a, b) {
+  var pa = getConsultPriority(a), pb = getConsultPriority(b);
+  var ra = priorityRank(pa), rb = priorityRank(pb);
+  if (ra !== rb) return ra - rb;
+  if (isActionDueToday(a) && !isActionDueToday(b)) return -1;
+  if (!isActionDueToday(a) && isActionDueToday(b)) return 1;
+  if (normalizeStatus(getField(a, '상태', ['status'])) === '신규' && normalizeStatus(getField(b, '상태', ['status'])) !== '신규') return -1;
+  if (normalizeStatus(getField(a, '상태', ['status'])) !== '신규' && normalizeStatus(getField(b, '상태', ['status'])) === '신규') return 1;
+  var da = getLastModifiedDate(a), db = getLastModifiedDate(b);
+  if (da && db) return db - da;
+  var ra2 = parseRowDate(a), rb2 = parseRowDate(b);
+  if (ra2 && rb2) return rb2 - ra2;
+  return 0;
+}
+
+function renderPriorityBadge(row) {
+  var p = getConsultPriority(row);
+  var label = p === 'urgent' ? '🔴 긴급' : (p === 'warn' ? '🟡 주의' : '🟢 정상');
+  return '<div class="priority-badge ' + p + '">' + label + '</div>';
+}
+
+function getStatusHint(row) {
+  var status = normalizeStatus(getField(row, '상태', ['status']));
+  var memo = String(getField(row, '상담메모', ['consultMemo', '처리메모'])).trim();
+  var next = String(getField(row, '다음액션', ['nextAction'])).trim();
+  var nextDate = getField(row, '다음액션예정일', ['nextActionDate']);
+  if (status === '신규' && memo) return '연락시도 권장';
+  if (status === '신규' && isNewNoContact(row)) return '신규 미연락 — 우선 연락 필요';
+  if (status === '상담완료' && !next && !nextDate) return '후속일정 필요';
+  if (status === '계약') {
+    var approvedAmt = String(getField(row, '승인금액', ['approvedAmount', '승인금액(원)'])).trim();
+    if (!approvedAmt) return '금액 입력 필요';
+  }
+  if (isActionOverdue(row)) return '예정일 경과 — 즉시 후속 필요';
+  if (isActionDueToday(row)) return '오늘 예정 액션';
+  if (isStaleConsult(row)) return '3일 이상 업데이트 없음';
+  return '';
+}
+
+function matchWorkFocus(row) {
+  if (!workFocus) return true;
+  if (workFocus === 'today') return isActionDueToday(row) || isActionOverdue(row);
+  if (workFocus === 'stale') return isStaleConsult(row);
+  if (workFocus === 'newNoContact') return isNewNoContact(row);
+  return true;
 }
 
 window.onload = function() {
   document.getElementById('gas-url').value = GAS_URL || '';
   bindFilters();
   bindModalClose();
+  bindTodayPanel();
   loadPipeline();
 };
 
@@ -497,15 +675,11 @@ function saveGasUrl() {
 
 function getField(row, key, alt) {
   if (!row) return '';
-  if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
-    return row[key];
-  }
+  if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') return row[key];
   var alts = alt || [];
   for (var i = 0; i < alts.length; i++) {
     var k = alts[i];
-    if (row[k] !== undefined && row[k] !== null && String(row[k]).trim() !== '') {
-      return row[k];
-    }
+    if (row[k] !== undefined && row[k] !== null && String(row[k]).trim() !== '') return row[k];
   }
   return '';
 }
@@ -526,6 +700,24 @@ function showToast(msg) {
 function showLoading() { document.getElementById('loading-overlay').classList.add('show'); }
 function hideLoading() { document.getElementById('loading-overlay').classList.remove('show'); }
 
+function bindTodayPanel() {
+  document.getElementById('today-grid').addEventListener('click', function(e) {
+    var chip = e.target.closest('.today-chip');
+    if (!chip) return;
+    var focus = chip.getAttribute('data-work-focus');
+    if (workFocus === focus) {
+      workFocus = '';
+      document.querySelectorAll('.today-chip').forEach(function(c) { c.classList.remove('active'); });
+    } else {
+      workFocus = focus;
+      document.querySelectorAll('.today-chip').forEach(function(c) {
+        c.classList.toggle('active', c === chip);
+      });
+    }
+    renderList();
+  });
+}
+
 function bindFilters() {
   document.getElementById('status-pills').addEventListener('click', function(e) {
     var pill = e.target.closest('.pill');
@@ -536,17 +728,14 @@ function bindFilters() {
     });
     renderList();
   });
-
   document.getElementById('search-input').addEventListener('input', function(e) {
     searchQuery = e.target.value;
     renderList();
   });
-
   document.getElementById('date-filter').addEventListener('change', function(e) {
     filterDate = e.target.value;
     renderList();
   });
-
   document.getElementById('assignee-filter').addEventListener('change', function(e) {
     filterAssignee = e.target.value;
     renderList();
@@ -564,10 +753,7 @@ function bindModalClose() {
 }
 
 function parseRowDate(row) {
-  var raw = getField(row, '접수일시', ['접수일', 'dateTime']);
-  if (!raw) return null;
-  var d = new Date(raw);
-  return isNaN(d.getTime()) ? null : d;
+  return parseDateAny(getField(row, '접수일시', ['접수일', 'dateTime']));
 }
 
 function matchDateFilter(row) {
@@ -575,8 +761,7 @@ function matchDateFilter(row) {
   var d = parseRowDate(row);
   if (!d) return true;
   var now = new Date();
-  var start = new Date(now);
-  start.setHours(0, 0, 0, 0);
+  var start = startOfDay(now);
   if (filterDate === 'today') return d >= start;
   if (filterDate === '7d') {
     start.setDate(start.getDate() - 7);
@@ -606,26 +791,23 @@ function matchSearch(row) {
 
 function getFilteredRows() {
   return pipelineRows.filter(function(row) {
-    var status = String(getField(row, '상태', ['status']) || '신규');
+    var status = normalizeStatus(getField(row, '상태', ['status']));
     if (filterStatus !== '전체' && status !== filterStatus) return false;
     if (!matchDateFilter(row)) return false;
     if (!matchSearch(row)) return false;
+    if (!matchWorkFocus(row)) return false;
     return true;
-  }).sort(function(a, b) {
-    var da = parseRowDate(a), db = parseRowDate(b);
-    if (!da && !db) return 0;
-    if (!da) return 1;
-    if (!db) return -1;
-    return db - da;
-  });
+  }).sort(compareRowPriority);
 }
 
 function updateStats() {
   var total = pipelineRows.length;
   var nNew = 0, nActive = 0, nDone = 0, nContract = 0;
-  var monthCount = 0, daySum = 0, dayCount = 0;
+  var monthStart = startOfDay(new Date());
+  monthStart.setDate(1);
+  var daySum = 0, dayCount = 0;
+  var nToday = 0, nStale = 0, nNewStale = 0;
   var now = new Date();
-  var monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
   pipelineRows.forEach(function(row) {
     var s = normalizeStatus(getField(row, '상태', ['status']));
@@ -635,14 +817,22 @@ function updateStats() {
     if (s === '계약') nContract++;
 
     var d = parseRowDate(row);
-    if (d && d >= monthStart) monthCount++;
     if (d) {
       daySum += Math.max(0, Math.floor((now - d) / 86400000));
       dayCount++;
     }
+
+    if (isActionDueToday(row)) nToday++;
+    if (isStaleConsult(row)) nStale++;
+    if (isNewNoContact(row)) nNewStale++;
   });
 
-  var rate = total > 0 ? Math.round((nContract / total) * 100) : 0;
+  var nMonth = pipelineRows.filter(function(row) {
+    var d = parseRowDate(row);
+    return d && d >= monthStart;
+  }).length;
+
+  var contractRate = total ? Math.round((nContract / total) * 100) : 0;
   var avgDays = dayCount > 0 ? Math.round(daySum / dayCount) : 0;
 
   document.getElementById('stat-total').textContent = total;
@@ -650,9 +840,12 @@ function updateStats() {
   document.getElementById('stat-active').textContent = nActive;
   document.getElementById('stat-done').textContent = nDone;
   document.getElementById('stat-contract').textContent = nContract;
-  document.getElementById('stat-rate').textContent = rate + '%';
-  document.getElementById('stat-month').textContent = monthCount;
+  document.getElementById('stat-rate').textContent = contractRate + '%';
+  document.getElementById('stat-month').textContent = nMonth;
   document.getElementById('stat-avgdays').textContent = avgDays;
+  document.getElementById('count-today').textContent = nToday;
+  document.getElementById('count-stale').textContent = nStale;
+  document.getElementById('count-new-stale').textContent = nNewStale;
 }
 
 function loadPipeline() {
@@ -673,9 +866,8 @@ function loadPipeline() {
         pipelineRows = data.rows;
         updateStats();
         renderList();
-      } else {
-        throw new Error(data.error || '데이터 없음');
-      }
+        showToast('상담 ' + pipelineRows.length + '건 불러옴');
+      } else throw new Error(data.error || '데이터 없음');
     })
     .catch(function(err) {
       hideLoading();
@@ -687,10 +879,41 @@ function loadPipeline() {
     });
 }
 
+function renderProgressBar(status) {
+  var s = normalizeStatus(status);
+  var pct = getStatusProgress(s);
+  var bar = STATUS_CONFIG[s].bar;
+  return '<div class="card-progress-wrap">' +
+    '<div class="card-progress-track"><div class="card-progress-fill" style="width:' + pct + '%;background:' + bar + '"></div></div>' +
+    '<span class="card-progress-pct">' + pct + '%</span></div>';
+}
+
+function formatTelHref(phone) {
+  var digits = String(phone || '').replace(/\D/g, '');
+  if (!digits) return '';
+  return 'tel:' + digits;
+}
+
+function toggleCardExpand(card) {
+  if (!card) return;
+  card.classList.toggle('collapsed');
+}
+
+function handleQuickKakao(e) {
+  if (e) e.stopPropagation();
+  alert('준비중');
+}
+
+function openDetailByCardIdx(idx) {
+  var filtered = getFilteredRows();
+  if (filtered[idx]) openDetailModal(filtered[idx]);
+}
+
 function renderList() {
   var rows = getFilteredRows();
   var meta = document.getElementById('list-meta');
-  meta.textContent = '표시 ' + rows.length + '건 / 전체 ' + pipelineRows.length + '건';
+  var focusLabel = workFocus === 'today' ? ' · 오늘 예정' : (workFocus === 'stale' ? ' · 지연' : (workFocus === 'newNoContact' ? ' · 신규 미연락' : ''));
+  meta.textContent = '표시 ' + rows.length + '건 / 전체 ' + pipelineRows.length + '건' + focusLabel;
 
   var container = document.getElementById('consult-list');
   if (rows.length === 0) {
@@ -702,12 +925,10 @@ function renderList() {
     return renderConsultCard(row, idx);
   }).join('');
 
-  container.querySelectorAll('.consult-card').forEach(function(card) {
-    card.addEventListener('click', function(e) {
-      if (e.target.closest('.card-actions')) return;
-      var idx = parseInt(card.getAttribute('data-idx'), 10);
-      var filtered = getFilteredRows();
-      if (filtered[idx]) openDetailModal(filtered[idx]);
+  container.querySelectorAll('.card-summary').forEach(function(summary) {
+    summary.addEventListener('click', function(e) {
+      if (e.target.closest('.card-quick-actions')) return;
+      toggleCardExpand(summary.closest('.consult-card'));
     });
   });
 
@@ -728,52 +949,66 @@ function renderConsultCard(row, idx) {
   var name = getField(row, '신청자명', ['name', '대표자명']);
   var phone = getField(row, '연락처', ['phone']);
   var dt = getField(row, '접수일시', ['접수일', 'dateTime']);
-  var policy = getField(row, '관심 사업명', ['policyName', '추천사업']);
   var region = getField(row, '지역', ['region']);
   var consultMemo = getField(row, '상담메모', ['consultMemo', '처리메모']);
   var nextAction = getField(row, '다음액션', ['nextAction']);
+  var nextActionDate = toDateInputValue(getField(row, '다음액션예정일', ['nextActionDate']));
+  var telHref = formatTelHref(phone);
+  var stale = isStaleConsult(row);
+  var hint = getStatusHint(row);
 
   var statusOpts = STATUS_LIST.map(function(s) {
     return '<option value="' + s + '"' + (s === status ? ' selected' : '') + '>' + s + '</option>';
   }).join('');
 
-  return '<article class="consult-card" data-status="' + escapeHtml(status) + '" data-idx="' + idx + '">' +
-    renderProgressBar(status) +
+  var staleHtml = stale ? '<div class="card-stale-msg">3일 이상 업데이트 없음</div>' : '';
+  var hintHtml = hint ? '<div class="card-status-hint">' + escapeHtml(hint) + '</div>' : '';
+
+  return '<article class="consult-card collapsed' + (stale ? ' is-stale' : '') + '" data-status="' + escapeHtml(status) + '" data-idx="' + idx + '">' +
     '<span class="status-badge" data-status="' + escapeHtml(status) + '">' + escapeHtml(status) + '</span>' +
-    '<div class="card-top"><div class="card-title-block">' +
-      '<div class="card-company">' + escapeHtml(company) + '</div>' +
-      '<div class="card-receipt">' + escapeHtml(receipt) + '</div>' +
-    '</div></div>' +
-    '<div class="card-info-grid">' +
-      '<div class="card-info-item"><span class="card-info-icon">👤</span><span class="card-info-text">' + escapeHtml(name) + '</span></div>' +
-      '<div class="card-info-item"><span class="card-info-icon">📞</span><span class="card-info-text">' + escapeHtml(phone) + '</span></div>' +
-      '<div class="card-info-item"><span class="card-info-icon">🕐</span><span class="card-info-text">' + escapeHtml(dt) + '</span></div>' +
-      (region ? '<div class="card-info-item"><span class="card-info-icon">📍</span><span class="card-info-text">' + escapeHtml(region) + '</span></div>' : '') +
+    '<div class="card-summary">' +
+      renderPriorityBadge(row) +
+      renderProgressBar(status) +
+      '<div class="card-top"><div class="card-title-block">' +
+        '<div class="card-company">' + escapeHtml(company) + '</div>' +
+        '<div class="card-receipt">' + escapeHtml(receipt) + '</div>' +
+      '</div></div>' +
+      staleHtml + hintHtml +
+      '<div class="card-info-grid">' +
+        '<div class="card-info-item"><span class="card-info-icon">📞</span><span class="card-info-text">' + escapeHtml(phone) + '</span></div>' +
+        '<div class="card-info-item"><span class="card-info-icon">📍</span><span class="card-info-text">' + escapeHtml(region || '-') + '</span></div>' +
+        '<div class="card-info-item"><span class="card-info-icon">🕐</span><span class="card-info-text">' + escapeHtml(dt) + '</span></div>' +
+      '</div>' +
+      '<div class="card-quick-actions">' +
+        (telHref ? '<a class="btn-quick" href="' + escapeHtml(telHref) + '" title="전화" onclick="event.stopPropagation()">📞</a>' : '<button type="button" class="btn-quick" disabled title="전화">📞</button>') +
+        '<button type="button" class="btn-quick" title="카톡" onclick="handleQuickKakao(event)">💬</button>' +
+        '<button type="button" class="btn-quick" title="상세" onclick="event.stopPropagation();openDetailByCardIdx(' + idx + ')">📋</button>' +
+      '</div>' +
     '</div>' +
-    (policy ? '<div class="card-policy"><span class="card-info-icon">📋</span> ' + escapeHtml(policy) + '</div>' : '') +
-    '<div class="card-actions">' +
-      '<select data-status-select="' + idx + '" onclick="event.stopPropagation()">' + statusOpts + '</select>' +
-      '<textarea placeholder="상담 메모" data-memo="' + idx + '" onclick="event.stopPropagation()">' + escapeHtml(consultMemo) + '</textarea>' +
-      '<input type="text" placeholder="다음 액션" data-next="' + idx + '" value="' + escapeHtml(nextAction) + '" onclick="event.stopPropagation()" />' +
-      '<button type="button" class="btn btn-save-card btn-sm" data-save-card data-idx="' + idx + '">💾 저장</button>' +
+    '<div class="card-expand">' +
+      '<div class="form-row"><label>상태</label><select data-status-select="' + idx + '" onclick="event.stopPropagation()">' + statusOpts + '</select></div>' +
+      '<div class="form-row"><label>상담 메모</label><textarea data-memo="' + idx + '" onclick="event.stopPropagation()">' + escapeHtml(consultMemo) + '</textarea></div>' +
+      '<div class="form-row"><label>다음 액션</label><input type="text" data-next="' + idx + '" value="' + escapeHtml(nextAction) + '" onclick="event.stopPropagation()" /></div>' +
+      '<div class="form-row"><label>다음 액션 예정일</label><input type="date" data-next-date="' + idx + '" value="' + escapeHtml(nextActionDate) + '" onclick="event.stopPropagation()" /></div>' +
+      '<button type="button" class="btn-save-card" data-save-card data-idx="' + idx + '">저장</button>' +
     '</div>' +
   '</article>';
 }
 
 function getCardInputs(idx) {
   var container = document.getElementById('consult-list');
-  var statusEl = container.querySelector('[data-status-select="' + idx + '"]');
-  var memoEl = container.querySelector('[data-memo="' + idx + '"]');
-  var nextEl = container.querySelector('[data-next="' + idx + '"]');
   return {
-    status: statusEl ? statusEl.value : '',
-    consultMemo: memoEl ? memoEl.value.trim() : '',
-    nextAction: nextEl ? nextEl.value.trim() : ''
+    status: (container.querySelector('[data-status-select="' + idx + '"]') || {}).value || '',
+    consultMemo: (container.querySelector('[data-memo="' + idx + '"]') || {}).value || '',
+    nextAction: (container.querySelector('[data-next="' + idx + '"]') || {}).value || '',
+    nextActionDate: (container.querySelector('[data-next-date="' + idx + '"]') || {}).value || ''
   };
 }
 
 function saveCardEdits(row, idx) {
   var inputs = getCardInputs(idx);
+  inputs.consultMemo = String(inputs.consultMemo).trim();
+  inputs.nextAction = String(inputs.nextAction).trim();
   saveConsultUpdate(row, inputs);
 }
 
@@ -789,6 +1024,7 @@ function saveConsultUpdate(row, fields) {
     nextAction: fields.nextAction,
     processMemo: fields.consultMemo
   };
+  if (fields.nextActionDate !== undefined) payload.nextActionDate = fields.nextActionDate;
 
   showLoading();
   fetch(GAS_URL, {
@@ -811,11 +1047,10 @@ function saveConsultUpdate(row, fields) {
         row['처리메모'] = fields.consultMemo;
       }
       if (fields.nextAction !== undefined) row['다음액션'] = fields.nextAction;
+      if (fields.nextActionDate !== undefined) row['다음액션예정일'] = fields.nextActionDate;
       updateStats();
       renderList();
-      if (detailRow && getField(detailRow, '접수번호', ['receiptNo']) === receiptNo) {
-        openDetailModal(row);
-      }
+      if (detailRow && getField(detailRow, '접수번호', ['receiptNo']) === receiptNo) openDetailModal(row);
       showToast('저장되었습니다');
     } else throw new Error(res.error || '저장 실패');
   })
@@ -825,83 +1060,51 @@ function saveConsultUpdate(row, fields) {
   });
 }
 
-function renderDetailFieldsGrid(fields, row) {
-  var html = '<div class="detail-grid">';
-  fields.forEach(function(f) {
-    var val = getField(row, f.key, f.alt);
-    if (val === '' && f.key !== '상태') return;
-    html += '<div class="detail-item' + (f.full ? ' full' : '') + '">' +
-      '<div class="detail-label">' + escapeHtml(f.key) + '</div>' +
-      '<div class="detail-value">' + escapeHtml(val === '' ? '-' : val) + '</div>' +
-    '</div>';
+function renderDetailSections(row) {
+  var html = '';
+  DETAIL_SECTIONS.forEach(function(sec) {
+    html += '<div class="detail-section"><div class="detail-section-title">' + escapeHtml(sec.title) + '</div><div class="detail-grid">';
+    sec.fields.forEach(function(f) {
+      var val = getField(row, f.key, f.alt);
+      if (val === '' && f.key !== '상태') return;
+      html += '<div class="detail-item' + (f.full ? ' full' : '') + '">' +
+        '<div class="detail-label">' + escapeHtml(f.key) + '</div>' +
+        '<div class="detail-value">' + escapeHtml(val === '' ? '-' : val) + '</div></div>';
+    });
+    html += '</div></div>';
   });
-  return html + '</div>';
+  return html;
 }
-
-var DETAIL_SECTIONS = {
-  basic: [
-    { key: '접수번호', alt: ['receiptNo'], full: false },
-    { key: '접수일시', alt: ['접수일', 'dateTime'], full: false },
-    { key: '상태', alt: ['status'], full: false },
-    { key: '업체명', alt: ['company'], full: false },
-    { key: '신청자명', alt: ['name', '대표자명'], full: false },
-    { key: '연락처', alt: ['phone'], full: false },
-    { key: '지역', alt: ['region'], full: false },
-    { key: '업종', alt: ['industry'], full: false },
-    { key: '사업자유형', alt: ['bizType'], full: false }
-  ],
-  consult: [
-    { key: '관심 사업명', alt: ['policyName', '추천사업'], full: true },
-    { key: '희망 상담시간', alt: ['preferTime'], full: false },
-    { key: '자금목적', alt: ['purposes', '자금필요목적'], full: true },
-    { key: '문의내용', alt: ['memo'], full: true },
-    { key: '애로사항', alt: ['trouble'], full: true }
-  ],
-  progress: [
-    { key: '창업연수', alt: ['bizAge'], full: false },
-    { key: '연매출(만원)', alt: ['revenue', '연매출'], full: false },
-    { key: '종업원수', alt: ['employees'], full: false },
-    { key: '다음액션', alt: ['nextAction'], full: true }
-  ],
-  memo: [
-    { key: '상담메모', alt: ['consultMemo'], full: true },
-    { key: '처리메모', alt: ['processMemo'], full: true }
-  ]
-};
 
 function openDetailModal(row) {
   detailRow = row;
   var company = getField(row, '업체명', ['company']) || '(업체명 없음)';
   var receipt = getField(row, '접수번호', ['receiptNo']);
   var status = normalizeStatus(getField(row, '상태', ['status']));
-  var pct = getStatusProgress(status);
 
   document.getElementById('detail-modal-title').textContent = company;
   document.getElementById('detail-modal-sub').textContent = receipt;
+  var banner = document.getElementById('detail-modal-status');
+  banner.textContent = status;
+  banner.setAttribute('data-status', status);
 
   var consultMemo = getField(row, '상담메모', ['consultMemo', '처리메모']);
   var nextAction = getField(row, '다음액션', ['nextAction']);
+  var nextActionDate = toDateInputValue(getField(row, '다음액션예정일', ['nextActionDate']));
   var statusOpts = STATUS_LIST.map(function(s) {
     return '<option value="' + s + '"' + (s === status ? ' selected' : '') + '>' + s + '</option>';
   }).join('');
 
-  var html = '<div class="modal-status-banner" data-status="' + escapeHtml(status) + '">● ' + escapeHtml(status) + ' · 진행률 ' + pct + '%</div>';
-  html += '<div class="modal-section"><div class="modal-section-title">기본정보</div>' + renderDetailFieldsGrid(DETAIL_SECTIONS.basic, row) + '</div>';
-  html += '<div class="modal-section"><div class="modal-section-title">상담정보</div>' + renderDetailFieldsGrid(DETAIL_SECTIONS.consult, row) + '</div>';
-  html += '<div class="modal-section"><div class="modal-section-title">진행정보</div>' + renderDetailFieldsGrid(DETAIL_SECTIONS.progress, row) + '</div>';
-  html += '<div class="modal-section"><div class="modal-section-title">메모</div>' + renderDetailFieldsGrid(DETAIL_SECTIONS.memo, row) + '</div>';
-  html += '<div class="modal-section modal-edit"><div class="modal-section-title">상담 처리</div>' +
+  var html = renderDetailSections(row);
+  html += '<div class="modal-edit"><h3>상담 처리</h3>' +
     '<div class="form-group"><label>상태 변경</label><select id="detail-status">' + statusOpts + '</select></div>' +
     '<div class="form-group"><label>상담 메모</label><textarea id="detail-memo" class="modal-textarea">' + escapeHtml(consultMemo) + '</textarea></div>' +
-    '<div class="form-group"><label>다음 액션</label><textarea id="detail-next" class="modal-textarea" rows="2">' + escapeHtml(nextAction) + '</textarea></div>' +
+    '<div class="form-group"><label>다음 액션</label><textarea id="detail-next" rows="2">' + escapeHtml(nextAction) + '</textarea></div>' +
+    '<div class="form-group"><label>다음 액션 예정일</label><input type="date" id="detail-next-date" value="' + escapeHtml(nextActionDate) + '" /></div>' +
+    '<div class="form-group"><label>승인금액 (준비중)</label>' +
+    '<input type="text" disabled placeholder="승인여부·승인금액·실행금액 — 다음 단계" />' +
+    '<p class="approval-note">시트 컬럼 연동 전 UI만 제공됩니다.</p></div>' +
   '</div>';
-  html += '<div class="modal-section modal-section-future"><div class="modal-section-title">승인·집행 (준비중)</div>' +
-    '<div class="form-row-2">' +
-      '<div class="form-group"><label>승인여부</label><select id="detail-approved" disabled><option>미정</option><option>승인</option><option>미승인</option></select></div>' +
-      '<div class="form-group"><label>승인금액 (원)</label><input type="text" id="detail-approved-amt" placeholder="예: 50000000" disabled /></div>' +
-    '</div>' +
-    '<div class="form-group"><label>실행금액 (원)</label><input type="text" id="detail-executed-amt" placeholder="예: 30000000" disabled /></div>' +
-    '<p class="field-hint">추후 KPI 연동 예정 · 현재는 저장되지 않습니다.</p></div>';
 
   document.getElementById('detail-modal-body').innerHTML = html;
   document.getElementById('detail-modal-overlay').classList.add('show');
@@ -919,7 +1122,8 @@ function saveDetailFromModal() {
   saveConsultUpdate(detailRow, {
     status: document.getElementById('detail-status').value,
     consultMemo: document.getElementById('detail-memo').value.trim(),
-    nextAction: document.getElementById('detail-next').value.trim()
+    nextAction: document.getElementById('detail-next').value.trim(),
+    nextActionDate: document.getElementById('detail-next-date').value
   });
 }
 </script>
